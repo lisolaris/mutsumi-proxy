@@ -2,6 +2,10 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // / -_-
+    if (url.pathname === "/")
+      return Response.redirect("https://s3.sorali.org/image/mutsumi-_-.jpg", 302);
+
     // /bing.css 用于获取 Bing 图片并替换 Firefox 新标签页的背景图片
     if (url.pathname === "/bing.css") {
       const bing = await fetch("https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN");
@@ -63,7 +67,6 @@ export default {
 
       return newResp;
     }
-
 
     // pass-through
     return fetch(request);
