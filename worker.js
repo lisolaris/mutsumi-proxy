@@ -1,5 +1,5 @@
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     // /bing.css 用于获取 Bing 图片并替换 Firefox 新标签页的背景图片
@@ -47,7 +47,25 @@ export default {
     }
 
 
+    // 代理访问Bing API时增加CORS头 允许跨域访问
+    if (url.pathname === "/api/bing/") {
+      const targetUrl = "https://www.bing.com/HPImageArchive.aspx" + url.search;
+      const resp = await fetch(targetUrl, {
+        method: "GET",
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
+        },
+      });
+      const newResp = new Response(resp.body, resp);
+      newResp.headers.set("Access-Control-Allow-Origin", "*");
+      newResp.headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+      newResp.headers.set("Access-Control-Allow-Headers", "Content-Type");
+
+      return newResp;
+    }
+
+
     // pass-through
     return fetch(request);
   }
-}
+};
