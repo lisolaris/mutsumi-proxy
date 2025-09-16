@@ -4,7 +4,17 @@ export default {
 
     // / -_-
     if (url.pathname === "/")
-      return Response.redirect("https://s3.sorali.org/image/mutsumi-_-.jpg", 302);
+      return new Response(`
+        <!DOCTYPE html><html><head><meta><title>-_-</title>
+        <style>html,body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;background:#000}img{max-width:100%;max-height:100%;width:auto;height:auto}</style></head>
+        <body><img src="https://s3.sorali.org/image/mutsumi-_-.jpg" alt="-_-"></body></html>
+      `, {
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "public, max-age=3600"
+        }
+      });
+
 
     // /bing.css 用于获取 Bing 图片并替换 Firefox 新标签页的背景图片
     if (url.pathname === "/bing.css") {
