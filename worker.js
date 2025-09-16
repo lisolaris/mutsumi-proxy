@@ -1,6 +1,7 @@
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const css_paths = ["/bing.css", "/bing-no-logo.css", "/bing-no-logo-search.css"]
 
     // / -_-
     if (url.pathname === "/")
@@ -17,27 +18,29 @@ export default {
 
 
     // /bing.css 用于获取 Bing 图片并替换 Firefox 新标签页的背景图片
-    if (url.pathname === "/bing.css") {
+    if (css_paths.includes(url.pathname)) {
       const bing = await fetch("https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN");
       const data = await bing.json();
-      const img = "https://www.bing.com" + data.images[0].url;
-      const text = data.images[0].copyright;
+      const img_url = "https://www.bing.com" + data.images[0].url;
+      const copyright_text = data.images[0].copyright;
 
+      const logo_visibility_css = url.pathname.includes("no-logo") ? "visibility: hidden;" : "";
+      const search_visibility_css = url.pathname.includes("no-logo-search") ? "visibility: hidden;" : "";
       const css = `
       @-moz-document url("about:newtab") {
         .search-inner-wrapper {
-          visibility: hidden;
+          ${search_visibility_css}
         }
         .logo-and-wordmark-wrapper {
-          visibility: hidden;
+          ${logo_visibility_css}
         }
         .activity-stream {
-          background-image: url("${img}") !important;
+          background-image: url("${img_url}") !important;
           background-size: cover !important;
           background-attachment: fixed !important;
         }
         .activity-stream::before {
-          content: "${text.replace(/"/g, '\\"')}";
+          content: "${copyright_text.replace(/"/g, '\\"')}";
           position: absolute;
           bottom: 20px;
           right: 20px;
