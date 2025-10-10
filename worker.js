@@ -8,7 +8,7 @@ export default {
       return new Response(`
         <!DOCTYPE html><html><head><meta><title>-_-</title>
         <style>html,body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;background:#000}img{max-width:100%;max-height:100%;width:auto;height:auto}</style></head>
-        <body><img src="https://s3.sorali.org/image/mutsumi-_-.jpg" alt="-_-"></body></html>
+        <body><img src="https://s3.sorali.org/image/mutsumi.jpg" alt="-_-"></body></html>
       `, {
         headers: {
           "Content-Type": "text/html; charset=utf-8",
@@ -64,22 +64,43 @@ export default {
     }
 
 
-    // 代理访问Bing API时增加CORS头 允许跨域访问
-    if (url.pathname === "/api/bing/") {
-      const targetUrl = "https://www.bing.com/HPImageArchive.aspx" + url.search;
-      const resp = await fetch(targetUrl, {
-        method: "GET",
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0",
-        },
-      });
-      const newResp = new Response(resp.body, resp);
-      newResp.headers.set("Access-Control-Allow-Origin", "*");
-      newResp.headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-      newResp.headers.set("Access-Control-Allow-Headers", "Content-Type");
+  //  /api/cors/ 代理请求所给出的地址并为响应结果添加CORS跨域访问
+  if (url.pathname.startsWith("/api/cors/")) {
+      const targetUrlString = url.toString().replace(url.origin + "/api/cors/", "");
 
+      let targetUrl;
+      try {
+          targetUrl = new URL(targetUrlString);
+      } catch (e) {
+          return new Response("Invalid URL after /api/cors/", { status: 400 });
+      }
+
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.delete("host"); 
+
+      // 执行代理请求
+      const resp = await fetch(targetUrl, {
+          method: request.method,
+          headers: requestHeaders,
+          body: request.body,
+          redirect: 'follow'
+      });
+
+      // 创建新的响应对象，保留原始响应的内容和状态
+      const newResp = new Response(resp.body, resp);
+
+      newResp.headers.set("Access-Control-Allow-Origin", "*");
+      newResp.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+      newResp.headers.set("Access-Control-Max-Age", "86400");
+
+      if (request.method === "OPTIONS") {
+          return new Response(null, {
+              status: 204, 
+              headers: newResp.headers 
+          });
+      }
       return newResp;
-    }
+  }
 
     // pass-through
     return fetch(request);
