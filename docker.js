@@ -1,3 +1,9 @@
+/*
+ * Portions of this code are derived from the [cloudflare-docker-proxy] project.
+ * Original Source: https://github.com/ciiiii/cloudflare-docker-proxy
+ * All rights belongs to the original author.
+ */
+
 const dockerHub = "https://registry-1.docker.io";
 const CUSTOM_DOMAIN = "mutsumi.sorali.org";
 const TARGET_UPSTREAM = "https://registry-1.docker.io";
