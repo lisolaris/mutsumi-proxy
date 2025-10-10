@@ -1,3 +1,8 @@
+import { 
+    handleRequest as dockerProxyHandler, 
+    responseUnauthorized,
+} from './docker.js';
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -102,7 +107,7 @@ export default {
       return newResp;
   }
 
-    // pass-through
-    return fetch(request);
+    // default docker hub proxy
+    return dockerProxyHandler(request);
   }
 };
