@@ -1,9 +1,7 @@
-addEventListener("fetch", (event) => {
-  event.passThroughOnException();
-  event.respondWith(handleRequest(event.request));
-});
-
 const dockerHub = "https://registry-1.docker.io";
+const CUSTOM_DOMAIN = "mutsumi.sorali.org";
+const TARGET_UPSTREAM = "https://registry-1.docker.io";
+const MODE = "production";
 
 const routes = {
   // production
