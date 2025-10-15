@@ -21,6 +21,15 @@ export default {
         }
       });
 
+    // teapot
+    if (url.pathname === "/teapot")
+      return new Response("I'm a teapot", {
+        status: 418,
+        statusText: "I'm a teapot",
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8'
+        }
+      });
 
     // /bing.css 用于获取 Bing 图片并替换 Firefox 新标签页的背景图片
     if (css_paths.includes(url.pathname)) {
