@@ -11,7 +11,7 @@ export default {
     // / -_-
     if (url.pathname === "/")
       return new Response(`
-        <!DOCTYPE html><html><head><meta><title>-_-</title>
+        <!DOCTYPE html><html><head><meta><title></title>
         <style>html,body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;background:#000}img{max-width:100%;max-height:100%;width:auto;height:auto}</style></head>
         <body><img src="https://s3.sorali.org/image/mutsumi.jpg" alt="-_-"></body></html>
       `, {
@@ -20,6 +20,9 @@ export default {
           "Cache-Control": "public, max-age=3600"
         }
       });
+
+    if (url.pathname == "/favicon.ico")
+      return Response.redirect("https://s3.sorali.org/image/cucumber.ico", 302);
 
     // teapot
     if (url.pathname === "/teapot")
