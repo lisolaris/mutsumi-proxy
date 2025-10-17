@@ -12,22 +12,25 @@ const MODE = "production";
 const routes = {
   // production
   [CUSTOM_DOMAIN]: dockerHub,
-  ["docker." + CUSTOM_DOMAIN]: dockerHub,
-  ["quay." + CUSTOM_DOMAIN]: "https://quay.io",
-  ["gcr." + CUSTOM_DOMAIN]: "https://gcr.io",
-  ["k8s-gcr." + CUSTOM_DOMAIN]: "https://k8s.gcr.io",
-  ["k8s." + CUSTOM_DOMAIN]: "https://registry.k8s.io",
-  ["ghcr." + CUSTOM_DOMAIN]: "https://ghcr.io",
-  ["cloudsmith." + CUSTOM_DOMAIN]: "https://docker.cloudsmith.io",
-  ["ecr." + CUSTOM_DOMAIN]: "https://public.ecr.aws",
+  ["/docker"]: dockerHub,
+  ["/quay"]: "https://quay.io",
+  ["/gcr"]: "https://gcr.io",
+  ["/k8sgcr."]: "https://k8s.gcr.io",
+  ["/k8s"]: "https://registry.k8s.io",
+  ["/ghcr"]: "https://ghcr.io",
+  ["/cloudsmith"]: "https://docker.cloudsmith.io",
+  ["/ecr"]: "https://public.ecr.aws",
 
   // staging
-  ["docker-staging." + CUSTOM_DOMAIN]: dockerHub,
+  ["/docker-staging" + CUSTOM_DOMAIN]: dockerHub,
 };
 
-export function routeByHosts(host) {
-  if (host in routes) {
-    return routes[host];
+export function routeByURLPath(url) {
+  for (const [prefix, target] of Object.entries(routes)) {
+    if (url.pathname.startsWith(prefix)) {
+      url.pathname = url.pathname.replace(prefix, "/");
+      return target;
+    }
   }
   if (MODE == "debug") {
     return TARGET_UPSTREAM;
@@ -37,10 +40,7 @@ export function routeByHosts(host) {
 
 export async function handleRequest(request) {
   const url = new URL(request.url);
-  // if (url.pathname == "/") {
-  //   return Response.redirect(url.protocol + "//" + url.host + "/v2/", 301);
-  // }
-  const upstream = routeByHosts(url.hostname);
+  const upstream = routeByURLPath(url);
   if (upstream === "") {
     return new Response(
       JSON.stringify({
