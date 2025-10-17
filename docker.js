@@ -22,7 +22,7 @@ const routes = {
   ["/ecr"]: "https://public.ecr.aws",
 
   // staging
-  ["/docker-staging" + CUSTOM_DOMAIN]: dockerHub,
+  ["/docker-staging"]: dockerHub,
 };
 
 export function routeByURLPath(url) {
