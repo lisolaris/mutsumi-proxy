@@ -75,6 +75,17 @@ export default {
       return newResp;
   }
 
+  // /generate_204 产生一个204响应
+  if (url.pathname.startsWith("/generate_204")) {
+    return new Response("204204204", {
+        status: 204,
+        headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "public, max-age=3600"
+        }
+    });
+  }
+
 
   // default docker hub proxy
     return dockerProxyHandler(request);
