@@ -77,10 +77,9 @@ export default {
 
   // /generate_204 产生一个204响应
   if (url.pathname.startsWith("/generate_204")) {
-    return new Response("204204204", {
+    return new Response(null, {
         status: 204,
         headers: {
-            "Content-Type": "text/plain; charset=utf-8",
             "Cache-Control": "public, max-age=3600"
         }
     });
