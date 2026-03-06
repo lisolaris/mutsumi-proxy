@@ -85,6 +85,16 @@ export default {
     });
   }
 
+  // /generate_204 产生一个204响应
+  if (url.pathname.startsWith("/dummy")) {
+    return new Response(null, {
+        status: 200,
+        headers: {
+            "Cache-Control": "public, max-age=3600"
+        }
+    });
+  }
+
 
   // default docker hub proxy
     return dockerProxyHandler(request);
