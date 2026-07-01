@@ -23,8 +23,13 @@ export default {
         }
       });
 
-    if (url.pathname == "/favicon.ico")
-      return Response.redirect("https://s3.sorali.org/image/cucumber.ico", 301);
+    // favicon: 代理返回，避免跨域 CSP 问题
+    if (url.pathname === "/favicon.ico") {
+      const resp = await fetch("https://s3.sorali.org/image/cucumber.ico");
+      const newResp = new Response(resp.body, resp);
+      newResp.headers.set("Cache-Control", "public, max-age=2592000, immutable");
+      return newResp;
+    }
 
 
     // teapot
