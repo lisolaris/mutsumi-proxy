@@ -18,7 +18,8 @@ export default {
       `, {
         headers: {
           "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "public, max-age=3600"
+          "Cache-Control": "public, max-age=3600",
+          "Content-Security-Policy": "img-src 'self' https://s3.sorali.org"
         }
       });
 
@@ -109,6 +110,7 @@ export default {
       method: request.method,
       url: request.url,
       ip: headers.get("CF-Connecting-IP") || "unknown",
+      userAgent: headers.get("User-Agent") || null,
       geo: cf ? {
         country: cf.country || null,
         city: cf.city || null,
