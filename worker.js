@@ -23,7 +23,7 @@ export default {
       });
 
     if (url.pathname == "/favicon.ico")
-      return Response.redirect("https://s3.sorali.org/image/cucumber.ico", 302);
+      return Response.redirect("https://s3.sorali.org/image/cucumber.ico", 301);
 
 
     // teapot
@@ -39,17 +39,29 @@ export default {
 
   //  /cors/ 代理请求所给出的地址并为响应结果添加CORS跨域访问
   if (url.pathname.startsWith("/cors/")) {
-      const targetUrlString = url.toString().replace(url.origin + "/api/cors/", "");
+      const targetUrlString = url.toString().replace(url.origin + "/cors/", "");
 
       let targetUrl;
       try {
           targetUrl = new URL(targetUrlString);
       } catch (e) {
-          return new Response("Invalid URL after /api/cors/", { status: 400 });
+          return new Response("Invalid URL after /cors/", { status: 400 });
+      }
+
+      // OPTIONS 预检请求直接返回，无需请求上游
+      if (request.method === "OPTIONS") {
+          return new Response(null, {
+              status: 204,
+              headers: {
+                  "Access-Control-Allow-Origin": "*",
+                  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD",
+                  "Access-Control-Max-Age": "86400",
+              }
+          });
       }
 
       const requestHeaders = new Headers(request.headers);
-      requestHeaders.delete("host"); 
+      requestHeaders.delete("host");
 
       // 执行代理请求
       const resp = await fetch(targetUrl, {
@@ -66,12 +78,6 @@ export default {
       newResp.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
       newResp.headers.set("Access-Control-Max-Age", "86400");
 
-      if (request.method === "OPTIONS") {
-          return new Response(null, {
-              status: 204, 
-              headers: newResp.headers 
-          });
-      }
       return newResp;
   }
 
