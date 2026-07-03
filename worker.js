@@ -1,7 +1,8 @@
-import { 
-    handleRequest as dockerProxyHandler, 
+import {
+    handleRequest as dockerProxyHandler,
     responseUnauthorized,
 } from './docker.js';
+import { handleRequest as ddnsHandler } from './ddns.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -181,6 +182,11 @@ export default {
       }
     });
   }
+
+
+  // /ddns/update 更新 Cloudflare DNS 记录
+  if (url.pathname === "/ddns/update")
+    return ddnsHandler(request, env);
 
 
   // default docker hub proxy
