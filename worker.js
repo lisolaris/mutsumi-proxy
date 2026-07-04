@@ -44,8 +44,8 @@ export default {
       });
 
 
-  //  /cors/ 代理请求所给出的地址并为响应结果添加CORS跨域访问
-  if (url.pathname.startsWith("/cors/")) {
+  //  /cors/ 或 /api/cors/ 代理请求所给出的地址并为响应结果添加CORS跨域访问
+  if (url.pathname.startsWith("/cors/") || url.pathname.startsWith("/api/cors/")) {
       const targetUrlString = url.toString().replace(url.origin + "/cors/", "");
 
       let targetUrl;
