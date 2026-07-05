@@ -44,49 +44,66 @@ export default {
       });
 
 
-  //  /cors/ 或 /api/cors/ 代理请求所给出的地址并为响应结果添加CORS跨域访问
-  if (url.pathname.startsWith("/cors/") || url.pathname.startsWith("/api/cors/")) {
-      const targetUrlString = url.toString().replace(url.origin + "/cors/", "");
+// 检查是否匹配代理路径
+if (url.pathname.startsWith("/cors/") || url.pathname.startsWith("/api/cors/")) {
+    
+    // 1. 动态安全地提取目标 URL
+    const prefix = url.pathname.startsWith("/api/cors/") ? "/api/cors/" : "/cors/";
+    const targetUrlString = url.toString().split(prefix)[1];
 
-      let targetUrl;
-      try {
-          targetUrl = new URL(targetUrlString);
-      } catch (e) {
-          return new Response("Invalid URL after /cors/", { status: 400 });
-      }
+    let targetUrl;
+    try {
+        targetUrl = new URL(targetUrlString);
+    } catch (e) {
+        return new Response("Invalid URL after proxy prefix", { status: 400 });
+    }
 
-      // OPTIONS 预检请求直接返回，无需请求上游
-      if (request.method === "OPTIONS") {
-          return new Response(null, {
-              status: 204,
-              headers: {
-                  "Access-Control-Allow-Origin": "*",
-                  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD",
-                  "Access-Control-Max-Age": "86400",
-              }
-          });
-      }
+    // 2. 完善 OPTIONS 预检请求响应
+    if (request.method === "OPTIONS") {
+        return new Response(null, {
+            status: 204,
+            headers: {
+                "Access-Control-Allow-Origin": request.headers.get("Origin") || "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD",
+                // 动态允许前端请求带过来的所有自定义 Headers
+                "Access-Control-Allow-Headers": request.headers.get("Access-Control-Request-Headers") || "*",
+                "Access-Control-Max-Age": "86400",
+                "Access-Control-Allow-Credentials": "true"
+            }
+        });
+    }
 
-      const requestHeaders = new Headers(request.headers);
-      requestHeaders.delete("host");
+    // 3. 构建代理请求参数
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.delete("host");
 
-      // 执行代理请求
-      const resp = await fetch(targetUrl, {
-          method: request.method,
-          headers: requestHeaders,
-          body: request.body,
-          redirect: 'follow'
-      });
+    const fetchOptions = {
+        method: request.method,
+        headers: requestHeaders,
+        redirect: 'follow'
+    };
 
-      // 创建新的响应对象，保留原始响应的内容和状态
-      const newResp = new Response(resp.body, resp);
+    // 避坑：仅在非 GET/HEAD 请求时才挂载 body
+    if (request.method !== "GET" && request.method !== "HEAD") {
+        fetchOptions.body = request.body;
+    }
 
-      newResp.headers.set("Access-Control-Allow-Origin", "*");
-      newResp.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-      newResp.headers.set("Access-Control-Max-Age", "86400");
+    // 执行代理请求
+    const resp = await fetch(targetUrl, fetchOptions);
 
-      return newResp;
-  }
+    // 4. 包装响应，重写并补全 CORS 头
+    const newHeaders = new Headers(resp.headers);
+    newHeaders.set("Access-Control-Allow-Origin", request.headers.get("Origin") || "*");
+    newHeaders.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+    newHeaders.set("Access-Control-Allow-Headers", request.headers.get("Access-Control-Request-Headers") || "*");
+    newHeaders.set("Access-Control-Max-Age", "86400");
+
+    return new Response(resp.body, {
+        status: resp.status,
+        statusText: resp.statusText,
+        headers: newHeaders
+    });
+}
 
   // /generate_204 产生一个204响应
   if (url.pathname.startsWith("/generate_204")) {
