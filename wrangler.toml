@@ -1,0 +1,16 @@
+name = "mutsumi-proxy"
+main = "worker.js"
+compatibility_date = "2025-09-16"
+
+# ── Cloudflare API Token（必须，用 secret 设置） ──────────
+# npx wrangler secret put CF_API_TOKEN
+
+# ── DDNS 配置 ─────────────────────────────────────────────
+# zone_id、tokens、records 全部在此填写。
+# 注意: 不要在公开仓库中提交真实值——提交前替换回占位符。
+#
+#   1. 运行 npx wrangler secret put DDNS_CONFIG
+#   2. 粘贴你的 JSON 后按 Ctrl+D
+
+# [vars]
+# DDNS_CONFIG = '{"zone_id":"your-cloudflare-zone-id","tokens":{"your-ddns-client-token":["sub1"]},"records":{"sub1":{"record_id":"your-dns-record-id","name":"sub1.example.com","type":"A","ttl":120,"proxied":false}}}'
