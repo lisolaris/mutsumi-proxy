@@ -16,5 +16,18 @@ compatibility_date = "2025-09-16"
 #   proxied:   是否开启 Cloudflare Proxy（默认 false）
 #   zone_id:   可选，覆盖全局 zone_id
 
-[vars]
-DDNS_CONFIG = '{"zone_id":"your-cloudflare-zone-id","tokens":{"your-ddns-client-token":["sub1"]},"records":{"sub1":{"record_id":"your-dns-record-id","name":"sub1.example.com","type":"A","ttl":120,"proxied":false}}}'
+# 注意: 不要在公开仓库中提交真实值——提交前替换回占位符。
+#   1. 运行 npx wrangler secret put DDNS_CONFIG
+#   2. 粘贴你的 JSON 后按 Ctrl+D
+
+# [vars]
+# DDNS_CONFIG = '{"zone_id":"your-cloudflare-zone-id","tokens":{"your-ddns-client-token":["sub1"]},"records":{"sub1":{"record_id":"your-dns-record-id","name":"sub1.example.com","type":"A","ttl":120,"proxied":false}}}'
+
+# ── KV 命名空间（IP 状态缓存） ─────────────────────────────
+# 用于持久化各子域名上次更新的 IP，避免 IP 未变时重复调 CF API。
+# 创建: npx wrangler kv:namespace create DDNS_STATE
+# 然后把返回的 id 填入下方。
+#
+# [[kv_namespaces]]
+# binding = "DDNS_STATE"
+# id = "your-kv-namespace-id"

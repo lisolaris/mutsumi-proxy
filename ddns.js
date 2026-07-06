@@ -98,18 +98,30 @@ function parseConfig(env) {
   };
 }
 
-// ── IP 状态追踪（内存） ────────────────────────────────────
+// ── IP 状态追踪（KV 持久化） ──────────────────────────────
+// 使用 Cloudflare KV 存储上次更新的 IP，Worker 重启后仍可读取。
+// 如未绑定 DDNS_STATE KV 命名空间，自动降级为内存缓存（跨请求不持久）。
 
-/** 每子域名上次更新的 IP，重启后丢失（等同 memory-only cache） */
-const _lastIps = new Map();
+const _memFallback = new Map();
 
-class IPState {
-  static get(subdomain) {
-    return _lastIps.get(subdomain) || null;
+async function getLastIP(env, subdomain) {
+  if (env.DDNS_STATE) {
+    try {
+      const val = await env.DDNS_STATE.get(`ip:${subdomain}`);
+      if (val != null) return val;
+    } catch { /* 降级到内存 */ }
   }
-  static set(subdomain, ip) {
-    _lastIps.set(subdomain, ip);
+  return _memFallback.get(subdomain) || null;
+}
+
+async function setLastIP(env, subdomain, ip) {
+  if (env.DDNS_STATE) {
+    try {
+      await env.DDNS_STATE.put(`ip:${subdomain}`, ip);
+      return;
+    } catch { /* 降级到内存 */ }
   }
+  _memFallback.set(subdomain, ip);
 }
 
 // ── 子域名级别锁 ──────────────────────────────────────────
@@ -370,7 +382,7 @@ export async function handleRequest(request, env) {
 
   // ── 带锁执行更新 ────────────────────────────────────
   return withLock(subdomain, async () => {
-    const previousIP = IPState.get(subdomain);
+    const previousIP = await getLastIP(env, subdomain);
 
     // IP 未变且未强制 → 跳过
     if (!forced && previousIP === currentIP) {
@@ -405,8 +417,8 @@ export async function handleRequest(request, env) {
       );
     }
 
-    // 保存当前 IP
-    IPState.set(subdomain, currentIP);
+    // 保存当前 IP 到 KV
+    await setLastIP(env, subdomain, currentIP);
 
     return new Response(
       JSON.stringify(
