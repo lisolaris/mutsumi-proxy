@@ -25,7 +25,7 @@ compatibility_date = "2025-09-16"
 
 # ── KV 命名空间（IP 状态缓存） ─────────────────────────────
 # 用于持久化各子域名上次更新的 IP，避免 IP 未变时重复调 CF API。
-# 创建: npx wrangler kv:namespace create DDNS_STATE
+# 创建: npx wrangler kv namespace create DDNS_STATE
 # 然后把返回的 id 填入下方。
 #
 # [[kv_namespaces]]

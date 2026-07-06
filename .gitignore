@@ -1,3 +1,6 @@
+# 本地部署配置（复制 wrangler.toml.example 后填入真实值）
+wrangler.toml
+
 node_modules/
 package.json
 package-lock.json
