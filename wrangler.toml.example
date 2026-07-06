@@ -1,0 +1,20 @@
+name = "mutsumi-proxy"
+main = "worker.js"
+compatibility_date = "2025-09-16"
+
+# ── Cloudflare API Token（必须，用 secret 设置） ──────────
+# npx wrangler secret put CF_API_TOKEN
+
+# ── DDNS 配置 ─────────────────────────────────────────────
+# zone_id: Cloudflare Zone ID（可在 Dashboard 的 Overview 页找到）
+# tokens:  DDNS 客户端的 Bearer token → 允许的子域名列表
+# records: 各子域名的 DNS 记录配置
+#   record_id: DNS 记录 ID（可在 Dashboard 或 API 获取）
+#   name:      完整域名
+#   type:      A（IPv4）或 AAAA（IPv6）
+#   ttl:       TTL 秒数（默认 120）
+#   proxied:   是否开启 Cloudflare Proxy（默认 false）
+#   zone_id:   可选，覆盖全局 zone_id
+
+[vars]
+DDNS_CONFIG = '{"zone_id":"your-cloudflare-zone-id","tokens":{"your-ddns-client-token":["sub1"]},"records":{"sub1":{"record_id":"your-dns-record-id","name":"sub1.example.com","type":"A","ttl":120,"proxied":false}}}'
