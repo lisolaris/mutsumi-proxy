@@ -201,9 +201,9 @@ if (url.pathname.startsWith("/cors/") || url.pathname.startsWith("/api/cors/")) 
   }
 
 
-  // /ddns/update 更新 Cloudflare DNS 记录
-  // 支持: /ddns/update, /ddns/update/<subdomain>
-  if (url.pathname === "/ddns/update" || url.pathname.startsWith("/ddns/update/"))
+  // /ddns/update/<subdomain> 更新 Cloudflare DNS 记录
+  // 例如: /ddns/update/my-sub-domain
+  if (url.pathname.startsWith("/ddns/update/"))
     return ddnsHandler(request, env);
 
 

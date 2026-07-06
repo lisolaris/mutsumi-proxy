@@ -287,30 +287,23 @@ async function updateDNSRecord(apiToken, zoneId, record, ip) {
 
 /**
  * DDNS 更新请求处理
- * 支持:
- *   GET  /ddns/update?name=<subdomain>[&ip=...][&force=true]
+ * 使用方式:
+ *   GET  /ddns/update/<subdomain>[?ip=...][&force=true]
  *   POST /ddns/update/<subdomain>[?ip=...][&force=true]
  */
 export async function handleRequest(request, env) {
   const url = new URL(request.url);
 
-  // ── 提取子域名 ────────────────────────────────────────
-  // 优先从路径取 (POST /ddns/update/<subdomain>)
-  // 回退到查询参数 (?name=)
-  let subdomain = url.searchParams.get("name");
-  if (!subdomain) {
-    // 尝试从路径解析: /ddns/update/<subdomain>
-    const pathParts = url.pathname.split("/");
-    // pathParts = ["", "ddns", "update", "<subdomain>"]
-    // 但也可能 pathname 恰好是 /ddns/update (无子域名)
-    if (pathParts.length >= 4 && pathParts[1] === "ddns" && pathParts[2] === "update") {
-      subdomain = pathParts.slice(3).join("/");
-    }
-  }
+  // ── 从路径提取子域名 ──────────────────────────────────
+  // /ddns/update/<subdomain> → subdomain
+  const pathParts = url.pathname.split("/");
+  // pathParts = ["", "ddns", "update", "subdomain"]
+  // 后面可能还有尾随斜杠或其他路径，只取第一段
+  const subdomain = pathParts.length >= 4 ? pathParts[3] : null;
 
   if (!subdomain) {
     return new Response(
-      JSON.stringify({ success: false, error: "missing 'name' parameter" }),
+      JSON.stringify({ success: false, error: "missing subdomain in URL path" }),
       { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } }
     );
   }
