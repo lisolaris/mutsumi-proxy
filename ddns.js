@@ -380,21 +380,17 @@ export async function handleRequest(request, env) {
     // IP 未变且未强制 → 跳过
     if (!forced && previousIP === currentIP) {
       return new Response(
-        JSON.stringify(
-          {
-            success: true,
-            record: record.name,
-            type: record.type,
-            ip: currentIP,
-            ip_source: resolvedIP.source,
-            changed: false,
-            cloudflare_called: false,
-            forced: false,
-            previous_ip: previousIP,
-          },
-          null,
-          2
-        ),
+        JSON.stringify({
+          success: true,
+          record: record.name,
+          type: record.type,
+          ip: currentIP,
+          ip_source: resolvedIP.source,
+          changed: false,
+          cloudflare_called: false,
+          forced: false,
+          previous_ip: previousIP,
+        }),
         { status: 200, headers: { "Content-Type": "application/json; charset=utf-8" } }
       );
     }
@@ -414,22 +410,18 @@ export async function handleRequest(request, env) {
     await setLastIP(env, subdomain, currentIP);
 
     return new Response(
-      JSON.stringify(
-        {
-          success: true,
-          record: record.name,
-          type: record.type,
-          ip: currentIP,
-          ip_source: resolvedIP.source,
-          changed: previousIP !== currentIP || forced,
-          cloudflare_called: true,
-          forced: forced,
-          previous_ip: previousIP,
-          cloudflare_status: result.status_code,
-        },
-        null,
-        2
-      ),
+      JSON.stringify({
+        success: true,
+        record: record.name,
+        type: record.type,
+        ip: currentIP,
+        ip_source: resolvedIP.source,
+        changed: previousIP !== currentIP || forced,
+        cloudflare_called: true,
+        forced: forced,
+        previous_ip: previousIP,
+        cloudflare_status: result.status_code,
+      }),
       { status: 200, headers: { "Content-Type": "application/json; charset=utf-8" } }
     );
   });

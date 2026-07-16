@@ -147,7 +147,7 @@ if (url.pathname.startsWith("/cors/") || url.pathname.startsWith("/api/cors/")) 
       } : null,
       headers: Object.fromEntries(headers.entries()),
     };
-    return new Response(JSON.stringify(echo, null, 2), {
+    return new Response(JSON.stringify(echo), {
       status: 200,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
@@ -190,7 +190,7 @@ if (url.pathname.startsWith("/cors/") || url.pathname.startsWith("/api/cors/")) 
     const count = countStr ? Math.min(Math.max(parseInt(countStr, 10) || 1, 1), 100) : 1;
     const uuids = Array.from({ length: count }, () => crypto.randomUUID());
     const body = count === 1 ? { uuid: uuids[0] } : { count, uuids };
-    return new Response(JSON.stringify(body, null, 2), {
+    return new Response(JSON.stringify(body), {
       status: 200,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
