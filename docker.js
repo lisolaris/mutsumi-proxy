@@ -26,6 +26,10 @@ const routes = {
 };
 
 export function routeByURLPath(url) {
+  // hostname 匹配：作为 registry-mirror 使用时，所有请求直接代理到 Docker Hub
+  if (url.hostname === CUSTOM_DOMAIN) {
+    return dockerHub;
+  }
   for (const [prefix, target] of Object.entries(routes)) {
     if (url.pathname.startsWith(prefix)) {
       url.pathname = url.pathname.replace(prefix, "/");

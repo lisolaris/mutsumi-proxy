@@ -35,9 +35,9 @@ export default {
 
     // teapot
     if (url.pathname === "/teapot")
-      return new Response("I'm a teapot", {
+      return new Response("I'm a cucumber", {
         status: 418,
-        statusText: "I'm a teapot",
+        statusText: "I'm a cucumber",
         headers: {
           'Content-Type': 'text/plain; charset=utf-8'
         }
